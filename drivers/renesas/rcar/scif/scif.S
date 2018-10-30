@@ -45,7 +45,7 @@
 #define	SCIF_DL			(0x30)
 #define	SCIF_CKS		(0x34)
 
-#if RCAR_LSI == RCAR_V3M
+#if (RCAR_LSI == RCAR_V3M) || (RCAR_LSI == RCAR_V3H)
 #define SCIF_BASE		SCIF0_BASE
 #define CPG_SMSTPCR		CPG_SMSTPCR2
 #define CPG_MSTPSR		CPG_MSTPSR2

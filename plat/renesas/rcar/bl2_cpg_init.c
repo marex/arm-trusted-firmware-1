@@ -33,6 +33,11 @@ static void bl2_realtime_cpg_init_v3m(void);
 static void bl2_system_cpg_init_v3m(void);
 #endif
 
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3H)
+static void bl2_realtime_cpg_init_v3h(void);
+static void bl2_system_cpg_init_v3h(void);
+#endif
+
 #if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_E3)
 static void bl2_realtime_cpg_init_e3(void);
 static void bl2_system_cpg_init_e3(void);
@@ -253,6 +258,38 @@ static void bl2_system_cpg_init_v3m(void)
 }
 #endif
 
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3H)
+static void bl2_realtime_cpg_init_v3h(void)
+{
+	/* Realtime Module Stop Control Registers */
+	cpg_write(RMSTPCR0, 0x00230000U);
+	cpg_write(RMSTPCR1, 0xFFFFFFFFU);
+	cpg_write(RMSTPCR2, 0x14062FD8U);
+	cpg_write(RMSTPCR3, 0xFFFFFFDFU);
+	cpg_write(RMSTPCR4, 0x80000184U);
+	cpg_write(RMSTPCR5, 0x83FFFFFFU);
+	cpg_write(RMSTPCR6, 0xFFFFFFFFU);
+	cpg_write(RMSTPCR7, 0xFFFFFFFFU);
+	cpg_write(RMSTPCR8, 0x7FF3FFF4U);
+	cpg_write(RMSTPCR9, 0xFFFFFFFEU);
+}
+
+static void bl2_system_cpg_init_v3h(void)
+{
+	/* System Module Stop Control Registers */
+	cpg_write(SMSTPCR0, 0x00210000U);
+	cpg_write(SMSTPCR1, 0xFFFFFFFFU);
+	cpg_write(SMSTPCR2, 0x340E2FDCU);
+	cpg_write(SMSTPCR3, 0xFFFFFBDFU);
+	cpg_write(SMSTPCR4, 0x80000004U);
+	cpg_write(SMSTPCR5, 0xC3FFFFFFU);
+	cpg_write(SMSTPCR6, 0xFFFFFFFFU);
+	cpg_write(SMSTPCR7, 0xFFFFFFFFU);
+	cpg_write(SMSTPCR8, 0x01F1FFF5U);
+	cpg_write(SMSTPCR9, 0xFFFFFFFEU);
+}
+#endif
+
 #if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_E3)
 static void bl2_realtime_cpg_init_e3(void)
 {
@@ -350,6 +387,9 @@ void bl2_cpg_init(void)
 		case RCAR_PRODUCT_V3M:
 			bl2_realtime_cpg_init_v3m();
 			break;
+		case RCAR_PRODUCT_V3H:
+			bl2_realtime_cpg_init_v3h();
+			break;
 		case RCAR_PRODUCT_E3:
 			bl2_realtime_cpg_init_e3();
 			break;
@@ -368,6 +408,8 @@ void bl2_cpg_init(void)
 		bl2_realtime_cpg_init_m3n();
 #elif RCAR_LSI == RCAR_V3M
 		bl2_realtime_cpg_init_v3m();
+#elif RCAR_LSI == RCAR_V3H
+		bl2_realtime_cpg_init_v3h();
 #elif RCAR_LSI == RCAR_E3
 		bl2_realtime_cpg_init_e3();
 #elif RCAR_LSI == RCAR_D3
@@ -396,6 +438,9 @@ void bl2_system_cpg_init(void)
 	case RCAR_PRODUCT_V3M:
 		bl2_system_cpg_init_v3m();
 		break;
+	case RCAR_PRODUCT_V3H:
+		bl2_system_cpg_init_v3h();
+		break;
 	case RCAR_PRODUCT_E3:
 		bl2_system_cpg_init_e3();
 		break;
@@ -414,6 +459,8 @@ void bl2_system_cpg_init(void)
 	bl2_system_cpg_init_m3n();
 #elif RCAR_LSI == RCAR_V3M
 	bl2_system_cpg_init_v3m();
+#elif RCAR_LSI == RCAR_V3H
+	bl2_system_cpg_init_v3h();
 #elif RCAR_LSI == RCAR_E3
 	bl2_system_cpg_init_e3();
 #elif RCAR_LSI == RCAR_D3
