@@ -4124,6 +4124,16 @@ int32_t rcar_dram_init(void)
 	prr_cut = mmio_read_32(PRR) & PRR_CUT_MASK;
 #endif /* RCAR_DDR_FIXED_LSI_TYPE */
 
+#if RCAR_LSI == RCAR_V3H
+	if (prr_product == PRR_PRODUCT_V3H) {
+		/* dram initialized by CR7 */
+		return INITDRAM_OK;
+	}
+
+	FATAL_MSG("BL2: DDR:Unknown Product\n");
+	return 0xff;
+#endif
+
 	if (prr_product == PRR_PRODUCT_H3) {
 		if (prr_cut <= PRR_PRODUCT_11) {
 			p_ddr_regdef_tbl =

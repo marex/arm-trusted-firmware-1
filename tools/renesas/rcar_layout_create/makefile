@@ -58,6 +58,8 @@ $(eval $(call add_define,RCAR_SA6_TYPE))
 # Handle different VMA adjustment on D3
 ifeq (${RCAR_LSI},${RCAR_D3})
 RCAR_VMA_ADJUST_ADDR := 0xE6320000
+else ifeq (${RCAR_LSI},${RCAR_V3H})
+RCAR_VMA_ADJUST_ADDR := 0xEB220000
 else
 RCAR_VMA_ADJUST_ADDR := 0xE6312000
 endif
