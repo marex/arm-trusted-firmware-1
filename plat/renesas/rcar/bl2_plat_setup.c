@@ -76,6 +76,9 @@ static void bl2_init_generic_timer(void);
 #elif RCAR_LSI == RCAR_V3M
 #define TARGET_PRODUCT			RCAR_PRODUCT_V3M
 #define TARGET_NAME			"R-Car V3M"
+#elif RCAR_LSI == RCAR_V3H
+#define TARGET_PRODUCT			RCAR_PRODUCT_V3H
+#define TARGET_NAME			"R-Car V3H"
 #elif RCAR_LSI == RCAR_E3
 #define TARGET_PRODUCT			RCAR_PRODUCT_E3
 #define TARGET_NAME			"R-Car E3"
@@ -83,7 +86,7 @@ static void bl2_init_generic_timer(void);
 #define TARGET_PRODUCT			RCAR_PRODUCT_D3
 #define TARGET_NAME			"R-Car D3"
 #elif RCAR_LSI == RCAR_AUTO
-#define TARGET_NAME			"R-Car H3/M3/M3N/V3M"
+#define TARGET_NAME			"R-Car H3/M3/M3N/V3M/V3H"
 #endif
 
 #if (RCAR_LSI == RCAR_E3)
@@ -475,6 +478,10 @@ static void bl2_populate_compatible_string(void *fdt)
 		ret = fdt_appendprop_string(fdt, 0, "compatible",
 					    "renesas,r8a77970");
 		break;
+	case RCAR_PRODUCT_V3H:
+		ret = fdt_appendprop_string(fdt, 0, "compatible",
+					    "renesas,r8a77980");
+		break;
 	case RCAR_PRODUCT_E3:
 		ret = fdt_appendprop_string(fdt, 0, "compatible",
 					    "renesas,r8a77990");
@@ -608,6 +615,11 @@ static void bl2_advertise_dram_size(uint32_t product)
 		dram_config[1] = 0x40000000ULL;
 		break;
 
+	case RCAR_PRODUCT_V3H:	/* FIXME: check this ! */
+		/* 2GB(512MBx4) */
+		dram_config[1] = 0x80000000ULL;
+		break;
+
 	case RCAR_PRODUCT_E3:
 #if (RCAR_DRAM_DDR3L_MEMCONF == 0)
 		/* 1GB(512MBx2) */
@@ -646,6 +658,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	const char *product_e3 = "E3";
 	const char *product_d3 = "D3";
 	const char *product_v3m = "V3M";
+	const char *product_v3h = "V3H";
 	const char *lcs_secure = "SE";
 	const char *lcs_cm = "CM";
 	const char *lcs_dm = "DM";
@@ -724,6 +737,9 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 		break;
 	case RCAR_PRODUCT_V3M:
 		str = product_v3m;
+		break;
+	case RCAR_PRODUCT_V3H:
+		str = product_v3h;
 		break;
 	case RCAR_PRODUCT_E3:
 		str = product_e3;
@@ -977,6 +993,7 @@ void bl2_platform_setup(void)
 static void bl2_init_generic_timer(void)
 {
 /* FIXME: V3M 16.666 MHz ? */
+/* FIXME: V3H 16.666 MHz ? */
 #if RCAR_LSI == RCAR_D3
 	uint32_t reg_cntfid = EXTAL_DRAAK;
 #elif RCAR_LSI == RCAR_E3
