@@ -21,7 +21,8 @@ typedef uint32_t(*rom_get_lcs_api_f) (uint32_t *lcs);
 #define OLD_API_TABLE3	(2U)	/* M3 Ver.1.0 */
 #define NEW_API_TABLE	(3U)	/* H3 Ver.3.0, M3 Ver.1.1 or later, M3N, E3, D3, V3M WS2.0 */
 #define NEW_API_TABLE2	(4U)	/* V3M WS1.0 */
-#define API_TABLE_MAX	(5U)	/* table max */
+#define NEW_API_TABLE3	(5U)	/* V3H WS1.0 */
+#define API_TABLE_MAX	(6U)	/* table max */
 				/* Later than H3 Ver.2.0 */
 
 static uint32_t get_table_index(void)
@@ -60,6 +61,9 @@ static uint32_t get_table_index(void)
 			/* V3M WS2.0 or later */
 			index = NEW_API_TABLE;
 		break;
+	case RCAR_PRODUCT_V3H:
+		index = NEW_API_TABLE3;
+		break;
 	default:
 		index = NEW_API_TABLE;
 		break;
@@ -77,6 +81,7 @@ uint32_t rcar_rom_secure_boot_api(uint32_t *key, uint32_t *cert,
 		0xEB1102FCU,	/* M3 Ver.1.0 */
 		0xEB100180U,	/* H3 Ver.3.0, M3 Ver.1.1 or later, M3N, E3, D3, V3M WS2.0 */
 		0xEB110128U,	/* V3M WS1.0 */
+		0xEB101960U,	/* V3H WS1.0 */
 	};
 	rom_secure_boot_api_f secure_boot;
 	uint32_t index;
@@ -89,6 +94,10 @@ uint32_t rcar_rom_secure_boot_api(uint32_t *key, uint32_t *cert,
 
 uint32_t rcar_rom_get_lcs(uint32_t *lcs)
 {
+#if RCAR_LSI == RCAR_V3H
+	*lcs = 0xff;
+	return 0;
+#else
 	static const uintptr_t rom_get_lcs_table[API_TABLE_MAX] = {
 		0xEB10DFE0U,	/* H3 Ver.1.0/Ver.1.1 */
 		0xEB117150U,	/* H3 Ver.2.0 */
@@ -103,4 +112,5 @@ uint32_t rcar_rom_get_lcs(uint32_t *lcs)
 	get_lcs = (rom_get_lcs_api_f) rom_get_lcs_table[index];
 
 	return get_lcs(lcs);
+#endif
 }
