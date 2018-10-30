@@ -16,6 +16,7 @@
 #include "M3/pfc_init_m3.h"
 #include "M3N/pfc_init_m3n.h"
 #include "V3M/pfc_init_v3m.h"
+#include "V3H/pfc_init_v3h.h"
 #endif
 #if (RCAR_LSI == RCAR_H3) || (RCAR_LSI == RCAR_H3N)	/* H3 */
 #include "H3/pfc_init_h3_v1.h"
@@ -29,6 +30,9 @@
 #endif
 #if RCAR_LSI == RCAR_V3M	/* V3M */
 #include "V3M/pfc_init_v3m.h"
+#endif
+#if RCAR_LSI == RCAR_V3H	/* V3H */
+#include "V3H/pfc_init_v3h.h"
 #endif
 #if RCAR_LSI == RCAR_E3		/* E3 */
 #include "E3/pfc_init_e3.h"
@@ -80,6 +84,9 @@ void rcar_pfc_init(void)
 	case PRR_PRODUCT_V3M:
 		pfc_init_v3m();
 		break;
+	case PRR_PRODUCT_V3H:
+		pfc_init_v3h();
+		break;
 	default:
 		PRR_PRODUCT_ERR(reg);
 		break;
@@ -123,6 +130,13 @@ void rcar_pfc_init(void)
 		PRR_PRODUCT_ERR(reg);
 #else
 		pfc_init_v3m();
+#endif
+		break;
+	case PRR_PRODUCT_V3H:
+#if RCAR_LSI != RCAR_V3H
+		PRR_PRODUCT_ERR(reg);
+#else
+		pfc_init_v3h();
 #endif
 		break;
 	case PRR_PRODUCT_E3:
@@ -182,6 +196,11 @@ void rcar_pfc_init(void)
 		PRR_PRODUCT_ERR(reg);
 	}
 	pfc_init_v3m();
+#elif RCAR_LSI == RCAR_V3H	/* V3H */
+	if ((PRR_PRODUCT_V3M) != (reg & PRR_PRODUCT_MASK)) {
+		PRR_PRODUCT_ERR(reg);
+	}
+	pfc_init_v3h();
 #elif RCAR_LSI == RCAR_E3	/* E3 */
 	if ((PRR_PRODUCT_E3) != (reg & PRR_PRODUCT_MASK)) {
 		PRR_PRODUCT_ERR(reg);
