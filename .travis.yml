@@ -1,0 +1,104 @@
+# SPDX-License-Identifier: GPL-2.0+
+# Copyright (C) 2018 Marek Vasut <marek.vasut@gmail.com>
+# Build R-Car ATF on Travis CI - https://travis-ci.org/
+
+dist: xenial
+
+language: c
+
+addons:
+  apt:
+    packages:
+    - bc
+    - build-essential
+    - device-tree-compiler
+    - wget
+
+before_install:
+ - sudo apt-get update -q
+ - sudo apt-get install gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu libc6-dev-arm64-cross clang -y
+
+env:
+  global:
+    - PATH=/usr/bin:/bin
+    - ARCH=arm64
+    - CROSS_COMPILE=aarch64-linux-gnu-
+    - MBEDTLS_DIR="/tmp/mbedtls/"
+    - RCAR_BUILD_TRG="bl2 bl31 rcar"
+    - RCAR_BUILD_ELF="tools/renesas/rcar_layout_create/bootparam_sa0.elf build/rcar/release/bl2/bl2.elf tools/renesas/rcar_layout_create/cert_header_sa6.elf build/rcar/release/bl31/bl31.elf"
+    - RCAR_OPT_COMMON="PLAT=rcar RCAR_BL33_EXECUTION_EL=1 LOG_LEVEL=50 RCAR_DEBUG=0"
+    - RCAR_OPT_SALVATORX="MACHINE=salvator-x SPD=opteed"
+    - RCAR_OPT_ULCB="MACHINE=ulcb RCAR_GEN3_ULCB=1 PMIC_LEVEL_MODE=0 RCAR_DRAM_LPDDR4_MEMCONF=0 SPD=opteed"
+    - RCAR_OPT_V3X="RCAR_DRAM_SPLIT=0 PMIC_ROHM_BD9571=0 RCAR_SYSTEM_SUSPEND=0 AVS_SETTING_ENABLE=0 SPD=none"
+    - RCAR_OPT_E3="RCAR_SA0_SIZE=0 RCAR_AVS_SETTING_ENABLE=0 SPD=opteed"
+    - RCAR_OPT_D3="RCAR_SA0_SIZE=0 RCAR_AVS_SETTING_ENABLE=0 RCAR_SYSTEM_SUSPEND=0 PMIC_ROHM_BD9571=0 LIFEC_DBSC_PROTECT_ENABLE=0 RCAR_LOSSY_ENABLE=0 SPD=none"
+
+before_script:
+  - git clone --depth 1 git://github.com/ARMmbed/mbedtls.git /tmp/mbedtls
+
+script:
+  - make CC=aarch64-linux-gnu-gcc ${BUILD_TRG} ${BUILD_OPT}
+  - aarch64-linux-gnu-size ${BUILD_ELF}
+
+matrix:
+  include:
+    - name: "ARM FVP"
+      env:
+        - BUILD_ELF="build/fvp/release/bl1/bl1.elf build/fvp/release/bl2/bl2.elf build/fvp/release/bl31/bl31.elf build/fvp/release/bl2u/bl2u.elf"
+        - BUILD_TRG="all"
+        - BUILD_OPT=""
+    - name: "R-Car R8A7795/H3 Salvator-X"
+      env:
+        - BUILD_ELF="${RCAR_BUILD_ELF}"
+        - BUILD_TRG="${RCAR_BUILD_TRG}"
+        - BUILD_OPT="LSI=H3 RCAR_DRAM_SPLIT=1 ${RCAR_OPT_COMMON} ${RCAR_OPT_SALVATORX}"
+    - name: "R-Car R8A7796/M3W Salvator-X"
+      env:
+        - BUILD_ELF="${RCAR_BUILD_ELF}"
+        - BUILD_TRG="${RCAR_BUILD_TRG}"
+        - BUILD_OPT="LSI=M3 RCAR_DRAM_SPLIT=2 ${RCAR_OPT_COMMON} ${RCAR_OPT_SALVATORX}"
+    - name: "R-Car R8A77965/M3N Salvator-X"
+      env:
+        - BUILD_ELF="${RCAR_BUILD_ELF}"
+        - BUILD_TRG="${RCAR_BUILD_TRG}"
+        - BUILD_OPT="LSI=M3N ${RCAR_OPT_COMMON} ${RCAR_OPT_SALVATORX}"
+    - name: "R-Car R8A7795/H3 ULCB"
+      env:
+        - BUILD_ELF="${RCAR_BUILD_ELF}"
+        - BUILD_TRG="${RCAR_BUILD_TRG}"
+        - BUILD_OPT="LSI=H3 RCAR_DRAM_SPLIT=1 ${RCAR_OPT_COMMON} ${RCAR_OPT_ULCB}"
+    - name: "R-Car R8A7796/M3W ULCB"
+      env:
+        - BUILD_ELF="${RCAR_BUILD_ELF}"
+        - BUILD_TRG="${RCAR_BUILD_TRG}"
+        - BUILD_OPT="LSI=M3 RCAR_DRAM_SPLIT=2 ${RCAR_OPT_COMMON} ${RCAR_OPT_ULCB}"
+    - name: "R-Car R8A77965/M3N ULCB"
+      env:
+        - BUILD_ELF="${RCAR_BUILD_ELF}"
+        - BUILD_TRG="${RCAR_BUILD_TRG}"
+        - BUILD_OPT="LSI=M3N ${RCAR_OPT_COMMON} ${RCAR_OPT_ULCB}"
+    - name: "R-Car R8A77970/V3M Eagle"
+      env:
+        - BUILD_ELF="${RCAR_BUILD_ELF}"
+        - BUILD_TRG="${RCAR_BUILD_TRG}"
+        - BUILD_OPT="LSI=V3M MACHINE=eagle ${RCAR_OPT_COMMON} ${RCAR_OPT_V3X}"
+    - name: "R-Car R8A77980/V3H Condor"
+      env:
+        - BUILD_ELF="${RCAR_BUILD_ELF}"
+        - BUILD_TRG="${RCAR_BUILD_TRG}"
+        - BUILD_OPT="LSI=V3H MACHINE=condor RCAR_SECURE_BOOT=0 ${RCAR_OPT_COMMON} ${RCAR_OPT_V3X}"
+    - name: "R-Car R8A77990/E3 Ebisu"
+      env:
+        - BUILD_ELF="${RCAR_BUILD_ELF}"
+        - BUILD_TRG="${RCAR_BUILD_TRG}"
+        - BUILD_OPT="LSI=E3 RCAR_DRAM_DDR3L_MEMCONF=0 ${RCAR_OPT_COMMON} ${RCAR_OPT_E3}"
+    - name: "R-Car R8A77990/E3 Ebisu-4D"
+      env:
+        - BUILD_ELF="${RCAR_BUILD_ELF}"
+        - BUILD_TRG="${RCAR_BUILD_TRG}"
+        - BUILD_OPT="LSI=E3 RCAR_DRAM_DDR3L_MEMCONF=1 ${RCAR_OPT_COMMON} ${RCAR_OPT_E3}"
+    - name: "R-Car R8A77995/D3 Draak"
+      env:
+        - BUILD_ELF="${RCAR_BUILD_ELF}"
+        - BUILD_TRG="${RCAR_BUILD_TRG}"
+        - BUILD_OPT="LSI=D3 ${RCAR_OPT_COMMON} ${RCAR_OPT_D3}"
