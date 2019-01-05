@@ -153,6 +153,7 @@
 #define RCAR_PRODUCT_M3			U(0x00005200)
 #define RCAR_PRODUCT_M3N		U(0x00005500)
 #define RCAR_PRODUCT_E3			U(0x00005700)
+#define RCAR_PRODUCT_D3			U(0x00005800)
 #define RCAR_CUT_VER10			U(0x00000000)
 #define RCAR_CUT_VER11			U(0x00000001)	/* H3/M3N Ver.1.1 */
 #define RCAR_M3_CUT_VER11		U(0x00000010)	/* M3 Ver.1.1/Ver.1.2 */
@@ -204,6 +205,7 @@
 #define	EXTAL_MD14_MD13_TYPE_3		U(16666600)	/* MD14=1 MD13=1 */
 #define	EXTAL_SALVATOR_XS		U(8320000)	/* Salvator-XS */
 #define EXTAL_EBISU			U(24000000)	/* Ebisu */
+#define EXTAL_DRAAK			U(24000000)	/* Draak */
 /* CPU Auxiliary Control Register */
 #define RCAR_CA57_DIS_LOAD_PASS_STORE	(ULL(1) << 55)
 /* CPG write protect registers 	*/
