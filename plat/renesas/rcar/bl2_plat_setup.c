@@ -111,6 +111,8 @@ static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 uint64_t fdt_blob[PAGE_SIZE_4KB / sizeof(uint64_t)];
 static void *fdt = (void *)fdt_blob;
 
+static u_register_t bl1_args[4];
+
 static void unsigned_num_print(unsigned long long int unum, unsigned int radix,
 				char *string)
 {
@@ -685,6 +687,12 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	int fcnlnode;
 #endif
 
+	/* Backup BL1 arguments for future use. */
+	bl1_args[0] = arg1;
+	bl1_args[1] = arg2;
+	bl1_args[2] = arg3;
+	bl1_args[3] = arg4;
+
 	bl2_init_generic_timer();
 
 	reg = mmio_read_32(RCAR_MODEMR);
@@ -995,9 +1003,23 @@ void bl2_el3_plat_arch_setup(void)
 #endif
 }
 
+#include <common/bl_common.h>
+#define IH_MAGIC	0x27051956
+
 void bl2_platform_setup(void)
 {
+	struct entry_point_info ep_info = {
+		.h.type = PARAM_EP,
+		.h.version = VERSION_2,
+		.h.size = sizeof(entry_point_info_t),
+		.h.attr = SECURE | EXECUTABLE,
+		.spsr = SPSR_64(MODE_EL3, MODE_SP_ELX,
+				DISABLE_ALL_EXCEPTIONS),
+		.pc = bl1_args[1],
+	};
 
+	if (bl1_args[0] == IH_MAGIC)
+		bl2_enter_bl31(&ep_info);
 }
 
 static void bl2_init_generic_timer(void)
