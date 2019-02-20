@@ -186,6 +186,8 @@ Raspberry Pi 3 platform port
 
 Renesas rcar-gen3 platform port
 -------------------------------
+:M: Marek Vasut <marek.vasut@gmail.com>
+:G: `marex`_
 :M: Jorge Ramirez-Ortiz  <jramirez@baylibre.com>
 :G: `ldts`_
 :F: docs/plat/rcar-gen3.rst
