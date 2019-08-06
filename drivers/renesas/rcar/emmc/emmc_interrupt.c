@@ -26,17 +26,17 @@ uint32_t emmc_interrupt(void)
 	uint32_t end_bit;
 
 	prr_data = mmio_read_32((uintptr_t) RCAR_PRR);
-	cut_ver = prr_data & RCAR_CUT_MASK;
-	if ((prr_data & RCAR_PRODUCT_MASK) == RCAR_PRODUCT_H3) {
-		if (cut_ver == RCAR_CUT_VER10) {
+	cut_ver = prr_data & PRR_CUT_MASK;
+	if ((prr_data & PRR_PRODUCT_MASK) == PRR_PRODUCT_H3) {
+		if (cut_ver == PRR_PRODUCT_10) {
 			end_bit = BIT17;
-		} else if (cut_ver == RCAR_CUT_VER11) {
+		} else if (cut_ver == PRR_PRODUCT_11) {
 			end_bit = BIT17;
 		} else {
 			end_bit = BIT20;
 		}
-	} else if ((prr_data & RCAR_PRODUCT_MASK) == RCAR_PRODUCT_M3) {
-		if (cut_ver == RCAR_CUT_VER10) {
+	} else if ((prr_data & PRR_PRODUCT_MASK) == PRR_PRODUCT_M3) {
+		if (cut_ver == PRR_PRODUCT_10) {
 			end_bit = BIT17;
 		} else {
 			end_bit = BIT20;
